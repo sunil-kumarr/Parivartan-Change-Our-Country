@@ -22,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
     mBottomNavigationView = findViewById(R.id.bottom_app_bar);
     mFragmentManager = getSupportFragmentManager();
+    mFragmentManager.beginTransaction().replace(R.id.fragment_container,new FragmentHome(),"fraghome").commit();
+    mBottomNavigationView.setSelectedItemId(R.id.nav_home);
     mBottomNavigationView.setOnNavigationItemSelectedListener(
         new BottomNavigationView.OnNavigationItemSelectedListener() {
           @Override
