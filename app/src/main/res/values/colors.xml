@@ -8,4 +8,5 @@
     <color name="gray">#4D4A4A</color>
     <color name="yellow">#FFEB3B</color>
     <color name="recycler_back">#E6E4E4</color>
+    <color name="red">#F44336</color>
 </resources>
