@@ -1,121 +1,225 @@
 package com.net.comy;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.IdpResponse;
+import com.firebase.ui.auth.ui.phone.PhoneVerification;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-public class LoginActivity extends AppCompatActivity {
-    private static final int RC_SIGN_IN_GOOGLE =  134;
-    private ImageView mMobileLogin,mGogoleSign,mMailSingUp;
-    private Button mLginButton;
-    private EditText mPassword,mEmail;
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseUser mCurrentUser;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        mPassword = findViewById(R.id.edt_password);
-        mEmail = findViewById(R.id.edt_email_address);
-        mLginButton = findViewById(R.id.login_button);
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mLginButton.setOnClickListener(
+import ernestoyaquello.com.verticalstepperform.VerticalStepperFormView;
+import ernestoyaquello.com.verticalstepperform.listener.StepperFormListener;
+
+public class LoginActivity extends AppCompatActivity
+    implements StepperFormListener,
+        GoogleSignInStep.GoogleInter,
+        PhoneNumberStep.PhoneVerification {
+
+  private static final int RC_SIGN_IN = 134;
+  private static final String KEY_VERIFY_IN_PROGRESS = "key_verify_in_progress";
+  private FirebaseAuth mFirebaseAuth;
+  private FirebaseUser mCurrentUser;
+  private PhoneNumberStep userNameStep;
+  private GoogleSignInStep mGoogleSignInStep;
+  private VerticalStepperFormView verticalStepperForm;
+  private boolean mVerificationInProgress = false;
+  private String mVerificationId;
+  private String mobileNumber;
+  private PhoneAuthProvider.ForceResendingToken mResendToken;
+  private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_login);
+    // Create the steps.
+    mFirebaseAuth = FirebaseAuth.getInstance();
+    userNameStep = new PhoneNumberStep("User Name");
+    mGoogleSignInStep =
+        new GoogleSignInStep(
+            "Google SignIn (Required)",
+            "Allows us to verify that you are a genuine user.",
+            "SignIn");
+    verticalStepperForm = findViewById(R.id.stepper_form);
+    verticalStepperForm
+        .setup(this, mGoogleSignInStep, userNameStep)
+        .allowNonLinearNavigation(false)
+        .displayStepButtons(false)
+        .confirmationStepTitle("Go To Home")
+            .lastStepNextButtonText("Yes")
+        .init();
+    verticalStepperForm.completeForm();
+    final Button resendCode = verticalStepperForm.findViewById(R.id.resend_btn);
+    resendCode.setOnClickListener(
         new View.OnClickListener() {
           @Override
           public void onClick(View pView) {
-            String email = mEmail.getText().toString();
-            String pass = mPassword.getText().toString();
-            if (TextUtils.isEmpty(email) || TextUtils.isEmpty(pass)) {
-              Toast.makeText(LoginActivity.this, "Invalid Email or Password", Toast.LENGTH_SHORT)
-                  .show();
-            } else {
-              mFirebaseAuth
-                  .createUserWithEmailAndPassword(email, pass)
-                  .addOnCompleteListener(
-                      LoginActivity.this,
-                      new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> pTask) {
-                          if (pTask.isSuccessful()) {
-                            mCurrentUser = mFirebaseAuth.getCurrentUser();
-                          } else {
-                            Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_SHORT).show();
-                          }
-                        }
-                      });
-            }
+            resendVerificationCode(mobileNumber, mResendToken);
           }
         });
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if(mFirebaseAuth.getCurrentUser()!=null){
-            startActivity(new Intent(this,MainActivity.class));
-            finish();
-        }
-    }
+    mCallbacks =
+        new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
-    public void googleSingIn(View pView){
-        List<AuthUI.IdpConfig> providers = Collections.singletonList(
-                new AuthUI.IdpConfig.GoogleBuilder().build());
-        startActivityForResult(
-                AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setAvailableProviders(providers)
-                        .build(),
-                RC_SIGN_IN_GOOGLE);
-    }
-    public void phoneNumberSignIn(View pView){
-        List<AuthUI.IdpConfig> providers = Collections.singletonList(
-                new AuthUI.IdpConfig.PhoneBuilder().build());
-        startActivityForResult(
-                AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setAvailableProviders(providers)
-                        .build(),
-                RC_SIGN_IN_GOOGLE);
-    }
-    public  void emailSingUp(View pView){
-       startActivity(new Intent(LoginActivity.this,SignUpActivity.class));
-    }
+          @Override
+          public void onVerificationCompleted(PhoneAuthCredential credential) {
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+            mVerificationInProgress = false;
+            signInWithPhoneAuthCredential(credential);
+          }
 
-        if (requestCode == RC_SIGN_IN_GOOGLE) {
-            IdpResponse response = IdpResponse.fromResultIntent(data);
-            if (resultCode == RESULT_OK) {
-                mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
-                startActivity(new Intent(LoginActivity.this,MainActivity.class));
-                finish();
-            } else {
-                Toast.makeText(this, "Sign Failed!!", Toast.LENGTH_SHORT).show();
+          @Override
+          public void onVerificationFailed(FirebaseException e) {
+            mVerificationInProgress = false;
+            if (e instanceof FirebaseAuthInvalidCredentialsException) {
+              Toast.makeText(LoginActivity.this, "Invalid Mobile Number", Toast.LENGTH_SHORT)
+                  .show();
+            } else if (e instanceof FirebaseTooManyRequestsException) {
+              Toast.makeText(LoginActivity.this, "SMS quota Exceeded", Toast.LENGTH_SHORT).show();
             }
-        }
-    }
+          }
 
+          @Override
+          public void onCodeSent(
+              @NonNull String verificationId,
+              @NonNull PhoneAuthProvider.ForceResendingToken token) {
+            Toast.makeText(LoginActivity.this, "Code sent for verification", Toast.LENGTH_SHORT)
+                .show();
+            mVerificationId = verificationId;
+            mResendToken = token;
+          }
+        };
+  }
+
+  @Override
+  public void onCompletedForm() {
+    startActivity(new Intent(LoginActivity.this,MainActivity.class));
+    finish();
+  }
+
+  @Override
+  public void onCancelledForm() {
+    // This method will be called when the user clicks on the cancel button of the form.
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == RC_SIGN_IN) {
+      if (resultCode == RESULT_OK) {
+        verticalStepperForm.markOpenStepAsCompletedOrUncompleted(true);
+      }
+    }
+  }
+
+  @Override
+  public void googleSignIn() {
+    List<AuthUI.IdpConfig> providers =
+        Collections.singletonList(new AuthUI.IdpConfig.GoogleBuilder().build());
+    startActivityForResult(
+        AuthUI.getInstance().createSignInIntentBuilder().setAvailableProviders(providers).build(),
+        RC_SIGN_IN);
+  }
+
+  @Override
+  public void onStart() {
+    super.onStart();
+    if(mFirebaseAuth.getCurrentUser()!=null){
+      startActivity(new Intent(LoginActivity.this,MainActivity.class)  );
+    finish();
+    }
+    if (mVerificationInProgress) {
+      EditText editText = verticalStepperForm.findViewById(R.id.edt_mobile_number);
+      startPhoneNumberVerification(editText.getText().toString());
+    }
+  }
+
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putBoolean(KEY_VERIFY_IN_PROGRESS, mVerificationInProgress);
+  }
+
+  @Override
+  protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    super.onRestoreInstanceState(savedInstanceState);
+    mVerificationInProgress = savedInstanceState.getBoolean(KEY_VERIFY_IN_PROGRESS);
+  }
+
+  @Override
+  public void startPhoneNumberVerification(String phoneNumber) {
+    mobileNumber = phoneNumber;
+    PhoneAuthProvider.getInstance()
+        .verifyPhoneNumber(
+            phoneNumber, // Phone number to verify
+            60, // Timeout duration
+            TimeUnit.SECONDS, // Unit of timeout
+            this, // Activity (for callback binding)
+            mCallbacks); // OnVerificationStateChangedCallbacks
+    mVerificationInProgress = true;
+  }
+
+  @Override
+  public void verifyCode(String code) {
+    verifyPhoneNumberWithCode(mVerificationId, code);
+  }
+
+  private void verifyPhoneNumberWithCode(String verificationId, String code) {
+    PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
+    signInWithPhoneAuthCredential(credential);
+  }
+
+  private void resendVerificationCode(
+      String phoneNumber, PhoneAuthProvider.ForceResendingToken token) {
+    PhoneAuthProvider.getInstance()
+        .verifyPhoneNumber(
+            phoneNumber, // Phone number to verify
+            60, // Timeout duration
+            TimeUnit.SECONDS, // Unit of timeout
+            this, // Activity (for callback binding)
+            mCallbacks, // OnVerificationStateChangedCallbacks
+            token); // ForceResendingToken from callbacks
+  }
+
+  private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+    if (mFirebaseAuth.getCurrentUser() != null)
+      mFirebaseAuth
+          .getCurrentUser()
+          .linkWithCredential(credential)
+          .addOnCompleteListener(
+              this,
+              new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                  if (task.isSuccessful()) {
+                    verticalStepperForm.markOpenStepAsCompleted(true);
+                    verticalStepperForm.goToNextStep(true);
+                  } else {
+                    Toast.makeText(LoginActivity.this, "Verification Failed", Toast.LENGTH_SHORT)
+                        .show();
+                  }
+                }
+              });
+  }
 }

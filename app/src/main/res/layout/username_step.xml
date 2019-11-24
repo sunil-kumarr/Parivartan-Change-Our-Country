@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/edt_mobile_number"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="@drawable/google_btn_border"
+        android:hint="Mobile Number"
+        android:inputType="phone"
+        android:textColor="@color/black"
+        android:textColorHint="@color/gray" />
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/edt_verification_code"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="@drawable/google_btn_border"
+        android:hint="Verification Code"
+        android:inputType="number"
+        android:visibility="gone"
+        android:textColor="@color/black"
+        android:textColorHint="@color/gray" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/send_code_btn"
+            android:layout_marginStart="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:background="@drawable/border_fill"
+            android:textColor="@color/white"
+            android:text="Send Code"/>
+        <Button
+            android:id="@+id/resend_btn"
+            android:layout_marginStart="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:background="@drawable/border_fill"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            android:text="Resend Code"/>
+        <Button
+            android:id="@+id/verify_btn"
+            android:layout_marginStart="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:visibility="gone"
+            android:background="@drawable/border_fill"
+            android:textColor="@color/white"
+            android:text="Verify"/>
+    </LinearLayout>
+
+</LinearLayout>

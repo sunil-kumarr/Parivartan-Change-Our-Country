@@ -2,34 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
-   <androidx.appcompat.widget.SearchView
-       android:layout_width="match_parent"
-       android:layout_height="?attr/actionBarSize"
-       android:background="@color/white"
-       android:clickable="true"
-       android:elevation="5dp"
-       app:queryHint="Search your complaints here..."
-       app:searchIcon="@drawable/ic_search_black_24dp"/>
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:minHeight="?actionBarSize"
-        app:tabBackground="@color/white"
-        app:tabGravity="fill"
-        app:tabTextColor="@color/black"
-        app:tabIndicatorColor="@color/red"
-        app:tabIndicatorHeight="2dp"
-        android:elevation="5dp"
-        app:tabSelectedTextColor="@color/red"
-        app:tabMode="fixed" />
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/viewpager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white" />
 </LinearLayout>

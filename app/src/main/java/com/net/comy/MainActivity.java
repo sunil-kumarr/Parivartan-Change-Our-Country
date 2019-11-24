@@ -1,52 +1,56 @@
 package com.net.comy;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
+import android.util.Log;
+import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.viewpager.widget.ViewPager;
 
-import com.google.android.gms.dynamic.SupportFragmentWrapper;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
-  private BottomNavigationView mBottomNavigationView;
-  private FragmentManager mFragmentManager;
+  private ComBookAdapter adapter;
+  private TabLayout tabLayout;
+  private ViewPager viewPager;
+  private FirebaseAuth mFirebaseAuth;
+  private FloatingActionButton mRegisterComplaint;
+  private FirebaseUser mCurrentUser;
+  private Context mContext;
+  private int[] tabIcons = {
+          R.drawable.circle_black, R.drawable.circle_black, R.drawable.circle_black
+  };
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-    mBottomNavigationView = findViewById(R.id.bottom_app_bar);
-    mFragmentManager = getSupportFragmentManager();
-    mFragmentManager.beginTransaction().replace(R.id.fragment_container,new FragmentHome(),"fraghome").commit();
-    mBottomNavigationView.setSelectedItemId(R.id.nav_home);
-    mBottomNavigationView.setOnNavigationItemSelectedListener(
-        new BottomNavigationView.OnNavigationItemSelectedListener() {
-          @Override
-          public boolean onNavigationItemSelected(@NonNull MenuItem pMenuItem) {
-            Fragment fragment = null;
-            switch (pMenuItem.getItemId()) {
-              case R.id.nav_home:
-                fragment = new FragmentHome();
-                break;
-              case R.id.nav_complaints:
-                fragment = new FragmentComBook();
-                break;
-              case R.id.nav_profile:
-                fragment = new FragmentProfile();
-                break;
-              default:
-                fragment = new FragmentHome();
-            }
-            FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment, "frag");
-            fragmentTransaction.commit();
-            return true;
-          }
-        });
+    mFirebaseAuth = FirebaseAuth.getInstance();
+    mCurrentUser = mFirebaseAuth.getCurrentUser();
+    mRegisterComplaint = findViewById(R.id.register_com_button);
+    tabLayout = findViewById(R.id.tabLayout);
+    viewPager = findViewById(R.id.viewpager);
+    adapter = new ComBookAdapter(getSupportFragmentManager(),MainActivity.this);
+    adapter.addFragment(new FragmentComplainAll(), "All");
+    adapter.addFragment(new FragmentComplainOpen(), "Open");
+    adapter.addFragment(new FragmentComplainClosed(), "Close");
+    viewPager.setAdapter(adapter);
+    tabLayout.setupWithViewPager(viewPager);
+    mRegisterComplaint.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View pView) {
+        startActivity(new Intent(MainActivity.this,RegisterComplaint.class));
+      }
+    });
+  }
+  public void signOut(View pView){
+    mFirebaseAuth.signOut();
+    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+    finish();
   }
 }
