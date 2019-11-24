@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set android:repeatMode="reverse"
+    android:shareInterpolator="true" android:duration="2000" xmlns:android="http://schemas.android.com/apk/res/android">
+   <scale android:fromXScale="0dp"
+       android:fromYScale="0dp"
+       android:toXScale="150dp"
+       android:toYScale="150dp"
+       android:pivotX="50%"
+       android:pivotY="50%"/>
+    <rotate android:pivotY="50%"
+        android:pivotX="50%"
+        android:toDegrees="360"
+        android:fromDegrees="0"/>
+</set>
