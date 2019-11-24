@@ -1,8 +1,11 @@
 package com.net.comy;
 
+import java.security.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Utils {
-    public static String getAlphaNumericString(int n)
-    {
+    public static String getAlphaNumericString(int n) {
 
         // chose a Character random from this String
         String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -17,7 +20,7 @@ public class Utils {
             // generate a random number between
             // 0 to AlphaNumericString variable length
             int index
-                    = (int)(AlphaNumericString.length()
+                    = (int) (AlphaNumericString.length()
                     * Math.random());
 
             // add Character one by one in end of sb
@@ -26,5 +29,11 @@ public class Utils {
         }
 
         return sb.toString();
+    }
+
+    public static String getDateTime(long timestamp) {
+        Date date = new Date(timestamp);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy' 'HH:mm:ss");
+        return simpleDateFormat.format(date);
     }
 }

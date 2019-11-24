@@ -5,8 +5,11 @@ public class ComplaintModel {
     String mUserID, mUserEmail, mUserNumber, mSubmitFromAddress,mRequestId;
     long timestamp;
 
+    public ComplaintModel() {
+    }
+
     public ComplaintModel(String pComplaintCategory, String pHappenedAt, String pComplaintTitle, String pComplaintDetails, String pComplaintImage,
-                          String pUserID, String pUserEmail, String pUserNumber, String pSubmitFromAddress,String pRequestId, long pTimestamp) {
+                          String pUserID, String pUserEmail, String pUserNumber, String pSubmitFromAddress, String pRequestId, long pTimestamp) {
         mComplaintCategory = pComplaintCategory;
         mHappenedAt = pHappenedAt;
         mComplaintTitle = pComplaintTitle;

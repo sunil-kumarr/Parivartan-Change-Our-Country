@@ -21,7 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class FragmentComplainClosed extends Fragment {
+public class FragmentComplainInProgress extends Fragment {
     private Context mContext;
     private RecyclerView mRecyclerView;
     private FirebaseDatabase mFirebaseDatabase;
@@ -46,7 +46,7 @@ public class FragmentComplainClosed extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mRecyclerView = view.findViewById(R.id.complain_rec_view);
         mNoComplaint = view.findViewById(R.id.no_complaint_here);
-
+        
         final HomeAdapter homeAdapter = new HomeAdapter( mContext, 1);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false));
         mRecyclerView.setAdapter(homeAdapter);
@@ -60,23 +60,22 @@ public class FragmentComplainClosed extends Fragment {
             mDatabaseReference.addChildEventListener(new ChildEventListener() {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
-                    UserView userView = pDataSnapshot.getValue(UserView.class);
-                    mComplaints.child(userView.getComplainID()).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot pDataSnapshot) {
-                            ComplaintModel complaintModel =pDataSnapshot.getValue(ComplaintModel.class);
-                           // Toast.makeText(mContext, ""+complaintModel.getComplaintTitle(), Toast.LENGTH_SHORT).show();
-                           if(("closed").equals(complaintModel.getStatus())) {
+                   UserView userView = pDataSnapshot.getValue(UserView.class);
+                   mComplaints.child(userView.getComplainID()).addListenerForSingleValueEvent(new ValueEventListener() {
+                       @Override
+                       public void onDataChange(@NonNull DataSnapshot pDataSnapshot) {
+                           ComplaintModel complaintModel =pDataSnapshot.getValue(ComplaintModel.class);
+                           if(("progress").equals(complaintModel.getStatus())) {
                                mNoComplaint.setVisibility(View.GONE);
                                homeAdapter.addComplainFromFirebase(complaintModel);
                            }
-                        }
+                       }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError pDatabaseError) {
+                       @Override
+                       public void onCancelled(@NonNull DatabaseError pDatabaseError) {
 
-                        }
-                    });
+                       }
+                   });
 
                 }
 

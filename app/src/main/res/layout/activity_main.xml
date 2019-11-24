@@ -5,17 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/logout_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:onClick="signOut"
-        android:src="@drawable/ic_logout_red_24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-
-        app:layout_constraintStart_toStartOf="parent"
-        />
     <include
         android:id="@+id/header"
         layout="@layout/location_search_header"

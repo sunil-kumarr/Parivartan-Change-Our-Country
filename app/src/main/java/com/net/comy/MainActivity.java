@@ -1,25 +1,21 @@
 package com.net.comy;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Address;
-import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -64,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private Location mCurrentLocation;
     private LocationRequest locationRequest;
     private FusedLocationProviderClient mFusedLocationProviderClient;
+    private int TabIcons[] = {R.drawable.ic_assignment,R.drawable.ic_pending,R.drawable.ic_completed};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,15 +71,31 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         mGeocoder = new Geocoder(this, Locale.getDefault());
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         mToolbar = findViewById(R.id.toolbar_location);
+        setSupportActionBar(mToolbar);
+
         mRegisterComplaint = findViewById(R.id.register_com_button);
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewpager);
         adapter = new ComBookAdapter(getSupportFragmentManager(), MainActivity.this);
-        adapter.addFragment(new FragmentComplainAll(), "All");
-        adapter.addFragment(new FragmentComplainOpen(), "Open");
-        adapter.addFragment(new FragmentComplainClosed(), "Close");
+        adapter.addFragment(new FragmentComplainOpen(), "Open",TabIcons[0]);
+        adapter.addFragment(new FragmentComplainInProgress(), "Pending",TabIcons[1]);
+        adapter.addFragment(new FragmentComplainClosed(), "Closed",TabIcons[2]);
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
+        highLightCurrentTab(0);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
+            @Override
+            public void onPageSelected(int position) {
+                highLightCurrentTab(position);
+            }
+            @Override
+            public void onPageScrollStateChanged(int state) {
+            }
+        });
+
         mRegisterComplaint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View pView) {
@@ -110,7 +123,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             }
         };
     }
-
+    private void highLightCurrentTab(int position) {
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            TabLayout.Tab tab = tabLayout.getTabAt(i);
+            assert tab != null;
+            tab.setCustomView(null);
+            tab.setCustomView(adapter.getTabView(i));
+        }
+        TabLayout.Tab tab = tabLayout.getTabAt(position);
+        assert tab != null;
+        tab.setCustomView(null);
+        tab.setCustomView(adapter.getSelectedTabView(position));
+    }
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
     public boolean checkLocationPermission() {
@@ -239,6 +263,21 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         mFusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(R.id.action_logout == item.getItemId()){
+            mFirebaseAuth.signOut();
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     private void showLocation(Location pLocation) throws IOException {
 //        Toast.makeText(this, "here", Toast.LENGTH_SHORT).show();

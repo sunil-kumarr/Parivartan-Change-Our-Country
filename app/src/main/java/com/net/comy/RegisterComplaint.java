@@ -113,7 +113,7 @@ public class RegisterComplaint extends AppCompatActivity {
         if (TextUtils.isEmpty(title) || TextUtils.isEmpty(desc) || TextUtils.isEmpty(location)) {
             return;
         }
-        mDialog = new ProgressDialog(this, R.style.Theme_Design_Light);
+        mDialog = new ProgressDialog(this);
         mDialog.setMessage("Registering...");
         mDialog.setCanceledOnTouchOutside(false);
         mDialog.show();
@@ -178,7 +178,7 @@ public class RegisterComplaint extends AppCompatActivity {
         final String productId = mDatabaseReference.push().getKey();
         if (mFirebaseUser != null && fileLink != null) {
             final String userId = mFirebaseUser.getUid();
-            String userEmail = mFirebaseUser.getEmail();
+            final String userEmail = mFirebaseUser.getEmail();
             String phoneNumber = mFirebaseUser.getPhoneNumber();
 
             int position = mCategorySpinner.getSelectedItemPosition();
@@ -205,9 +205,10 @@ public class RegisterComplaint extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Map<String, String> com = new HashMap<>();
-                            com.put(shortId,productId);
-                            mUserComplaint.child(userId).setValue(com);
+
+                            UserView userView = new UserView();
+                            userView.setComplainID(productId);
+                            mUserComplaint.child(userId).child(shortId).setValue(userView);
                             Toast.makeText(RegisterComplaint.this, "Complaint Registered.", Toast.LENGTH_SHORT).show();
                             mDialog.dismiss();
                             finish();

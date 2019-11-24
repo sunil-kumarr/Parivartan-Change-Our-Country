@@ -1,8 +1,14 @@
 package com.net.comy;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -26,10 +32,27 @@ public class ComBookAdapter extends FragmentStatePagerAdapter {
     return mFragmentList.get(position);
   }
 
-  public void addFragment(Fragment fragment, String title) {
+  public void addFragment(Fragment fragment, String title,Integer tabIcon) {
     mFragmentList.add(fragment);
     mFragmentTitleList.add(title);
-    //        mFragmentIconList.add(tabIcon);
+    mFragmentIconList.add(tabIcon);
+  }
+  public View getTabView(int position) {
+    View view = LayoutInflater.from(context).inflate(R.layout.custom_tabl_tablayout, null);
+    TextView tabTextView = view.findViewById(R.id.tabTextView);
+    tabTextView.setText(mFragmentTitleList.get(position));
+    ImageView imageView = view.findViewById(R.id.tabIcon);
+    imageView.setImageResource(mFragmentIconList.get(position));
+    return view;
+  }
+  public View getSelectedTabView(int position) {
+    View view = LayoutInflater.from(context).inflate(R.layout.custom_tabl_tablayout, null);
+    TextView tabTextView = view.findViewById(R.id.tabTextView);
+    tabTextView.setText(mFragmentTitleList.get(position));
+    tabTextView.setTextColor(ContextCompat.getColor(context, R.color.red));
+    ImageView imageView = view.findViewById(R.id.tabIcon);
+    imageView.setImageResource(mFragmentIconList.get(position));
+    return view;
   }
 
   @Nullable
@@ -42,19 +65,4 @@ public class ComBookAdapter extends FragmentStatePagerAdapter {
   public int getCount() {
     return mFragmentList.size();
   }
-  //    public View getTabView(int position) {
-  //        View view = LayoutInflater.from(context).inflate(R.layout.custom_tabl_tablayout, null);
-  //        TextView tabTextView = view.findViewById(R.id.tabTextView);
-  //        tabTextView.setText(mFragmentTitleList.get(position));
-  //        return view;
-  //    }
-  //    public View getSelectedTabView(int position) {
-  //        View view = LayoutInflater.from(context).inflate(R.layout.custom_tabl_tablayout, null);
-  //        TextView tabTextView = view.findViewById(R.id.tabTextView);
-  //        tabTextView.setText(mFragmentTitleList.get(position));
-  //        tabTextView.setTextColor(ContextCompat.getColor(context, R.color.white));
-  //        CardView cardView = view.findViewById(R.id.tab_Card_view);
-  //        cardView.setBackgroundResource(R.drawable.border_fill);
-  //        return view;
-  //    }
 }
