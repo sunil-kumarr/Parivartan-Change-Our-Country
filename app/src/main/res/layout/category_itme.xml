@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/category_item_tab"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:background="@drawable/box_outline"
+    android:drawableStart="@drawable/ic_government"
+    android:drawablePadding="10dp"
+    android:gravity="start|center_vertical"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:text="Government and Policies"
+    android:textColor="@color/black"
+    android:textSize="20sp" />

@@ -55,7 +55,7 @@ public class LoginActivity extends AppCompatActivity
     setContentView(R.layout.activity_login);
     // Create the steps.
     mFirebaseAuth = FirebaseAuth.getInstance();
-    userNameStep = new PhoneNumberStep("User Name");
+    userNameStep = new PhoneNumberStep("Verify Mobile Number(Required)");
     mGoogleSignInStep =
         new GoogleSignInStep(
             "Google SignIn (Required)",
@@ -147,7 +147,7 @@ public class LoginActivity extends AppCompatActivity
     super.onStart();
     if(mFirebaseAuth.getCurrentUser()!=null){
       startActivity(new Intent(LoginActivity.this,MainActivity.class)  );
-    finish();
+      finish();
     }
     if (mVerificationInProgress) {
       EditText editText = verticalStepperForm.findViewById(R.id.edt_mobile_number);

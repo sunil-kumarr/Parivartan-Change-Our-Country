@@ -99,13 +99,20 @@ public class PhoneNumberStep extends Step<String> {
 
     @Override
     public String getStepDataAsHumanReadableString() {
-        String userName = getStepData();
-        return !userName.isEmpty() ? userName : "(Empty)";
+        return null;
     }
 
     @Override
     protected void onStepOpened(boolean animated) {
-        // This will be called automatically whenever the step gets opened.
+        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+        if(mFirebaseUser!=null) {
+            String num = mFirebaseUser.getPhoneNumber();
+            updateTitle("Mobile Number:"+num,true);
+            getFormView().goToNextStep(true);
+            isStepDataValid(num.substring(3,13));
+            markAsCompleted(true);
+            mSendCode.setText("Update");
+        }
     }
 
     @Override
@@ -116,9 +123,11 @@ public class PhoneNumberStep extends Step<String> {
     @Override
     protected void onStepMarkedAsCompleted(boolean animated) {
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
-    if (mFirebaseUser != null) {
+        if (mFirebaseUser != null && getTitle().equals("Verify Mobile Number(Required")) {
+            isStepDataValid(mFirebaseUser.getPhoneNumber().substring(3,13));
              updateTitle("Mobile Number:"+getStepData(),true);
         }
+
         // This will be called automatically whenever the step is marked as completed.
     }
 
