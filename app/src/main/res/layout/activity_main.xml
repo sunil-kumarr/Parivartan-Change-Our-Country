@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/logout_button"
         android:layout_width="wrap_content"
@@ -19,7 +18,7 @@
         />
     <include
         android:id="@+id/header"
-        layout="@layout/fragment_home"
+        layout="@layout/location_search_header"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
