@@ -86,7 +86,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         mRegisterComplaint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View pView) {
-                startActivity(new Intent(MainActivity.this, RegisterComplaint.class));
+                Intent intent = new Intent(MainActivity.this, RegisterComplaint.class);
+                startActivity(intent);
             }
         });
         if(checkLocationPermission()){
@@ -253,6 +254,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void onLocationChanged(Location pLocation) {
 //        Toast.makeText(this, "called...", Toast.LENGTH_SHORT).show();
         try {
+            mCurrentLocation = pLocation;
             showLocation(pLocation);
         } catch (IOException pE) {
             pE.printStackTrace();

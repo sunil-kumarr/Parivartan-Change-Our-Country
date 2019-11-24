@@ -141,12 +141,14 @@
         android:padding="10dp"
         android:text="Register Complaint"
         android:textColor="@color/white"
+        android:onClick="getCurrentLocationAndRegister"
         android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
+        android:id="@+id/complaint_image"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_margin="20dp"
