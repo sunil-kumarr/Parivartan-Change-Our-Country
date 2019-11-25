@@ -60,7 +60,7 @@ public class FragmentComplainInProgress extends Fragment {
             mDatabaseReference.addChildEventListener(new ChildEventListener() {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
-                   UserView userView = pDataSnapshot.getValue(UserView.class);
+                   ComplaintInfo userView = pDataSnapshot.getValue(ComplaintInfo.class);
                    mComplaints.child(userView.getComplainID()).addListenerForSingleValueEvent(new ValueEventListener() {
                        @Override
                        public void onDataChange(@NonNull DataSnapshot pDataSnapshot) {

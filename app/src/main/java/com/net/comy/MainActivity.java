@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -23,6 +24,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -40,6 +42,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
 import java.util.List;
@@ -59,7 +65,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private Geocoder mGeocoder;
     private Location mCurrentLocation;
     private LocationRequest locationRequest;
+    private ShimmerFrameLayout mShimmerFrameLayout;
     private FusedLocationProviderClient mFusedLocationProviderClient;
+    private FirebaseDatabase mFirebaseDatabase;
     private int TabIcons[] = {R.drawable.ic_assignment,R.drawable.ic_pending,R.drawable.ic_completed};
 
     @Override
@@ -68,6 +76,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         setContentView(R.layout.activity_main);
         mFirebaseAuth = FirebaseAuth.getInstance();
         mCurrentUser = mFirebaseAuth.getCurrentUser();
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+
         mGeocoder = new Geocoder(this, Locale.getDefault());
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         mToolbar = findViewById(R.id.toolbar_location);
@@ -78,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         viewPager = findViewById(R.id.viewpager);
         adapter = new ComBookAdapter(getSupportFragmentManager(), MainActivity.this);
         adapter.addFragment(new FragmentComplainOpen(), "Open",TabIcons[0]);
-        adapter.addFragment(new FragmentComplainInProgress(), "Pending",TabIcons[1]);
+//        adapter.addFragment(new FragmentComplainInProgress(), "Pending",TabIcons[1]);
         adapter.addFragment(new FragmentComplainClosed(), "Closed",TabIcons[2]);
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
@@ -106,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         if(checkLocationPermission()){
             createLocationRequest();
         }
+        setAdminControls();
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -122,6 +133,42 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 }
             }
         };
+    }
+
+    private void setAdminControls(){
+        mFirebaseDatabase.getReference("admin")
+                .addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
+                        UserAdminView userAdminView = pDataSnapshot.getValue(UserAdminView.class);
+                        if(userAdminView!=null){
+                            if(userAdminView.getFirebaseID().equals(mCurrentUser.getUid())){
+                                mRegisterComplaint.setVisibility(View.GONE);
+                                mToolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_person_24px));
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(@NonNull DataSnapshot pDataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError pDatabaseError) {
+
+                    }
+                });
     }
     private void highLightCurrentTab(int position) {
         for (int i = 0; i < tabLayout.getTabCount(); i++) {
@@ -240,8 +287,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        if(mCurrentUser==null){
+            startActivity(new Intent(MainActivity.this,LoginActivity.class));
+            finish();
+        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {

@@ -1,6 +1,6 @@
 package com.net.comy;
 
-public class UserView {
+public class ComplaintInfo {
     String complainID;
 
     public String getComplainID() {
@@ -11,7 +11,7 @@ public class UserView {
         complainID = pComplainID;
     }
 
-    public UserView() {
+    public ComplaintInfo() {
     }
 
 }

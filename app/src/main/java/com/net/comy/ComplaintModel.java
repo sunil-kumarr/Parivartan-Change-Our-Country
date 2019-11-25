@@ -1,15 +1,16 @@
 package com.net.comy;
 
 public class ComplaintModel {
-    String mComplaintCategory, mHappenedAt, mComplaintTitle, mComplaintDetails, mComplaintImage,mStatus;
+    String mComplaintCategory, mHappenedAt, mComplaintTitle, mComplaintDetails, mComplaintImage,mStatus,mComplaintID;
     String mUserID, mUserEmail, mUserNumber, mSubmitFromAddress,mRequestId;
-    long timestamp;
+    long timestamp,mRemarksTimeStamp;
+    String mRemarksByAdmin;
 
     public ComplaintModel() {
     }
 
     public ComplaintModel(String pComplaintCategory, String pHappenedAt, String pComplaintTitle, String pComplaintDetails, String pComplaintImage,
-                          String pUserID, String pUserEmail, String pUserNumber, String pSubmitFromAddress, String pRequestId, long pTimestamp) {
+                          String pUserID, String pUserEmail, String pUserNumber, String pSubmitFromAddress, String pRequestId,String pComplaintID ,long pTimestamp) {
         mComplaintCategory = pComplaintCategory;
         mHappenedAt = pHappenedAt;
         mComplaintTitle = pComplaintTitle;
@@ -19,9 +20,34 @@ public class ComplaintModel {
         mUserEmail = pUserEmail;
         mUserNumber = pUserNumber;
         mSubmitFromAddress = pSubmitFromAddress;
+        mComplaintID = pComplaintID;
         timestamp = pTimestamp;
         mRequestId = pRequestId;
         mStatus = "open";
+    }
+
+    public long getRemarksTimeStamp() {
+        return mRemarksTimeStamp;
+    }
+
+    public void setRemarksTimeStamp(long pRemarksTimeStamp) {
+        mRemarksTimeStamp = pRemarksTimeStamp;
+    }
+
+    public String getRemarksByAdmin() {
+        return mRemarksByAdmin;
+    }
+
+    public void setRemarksByAdmin(String pRemarksByAdmin) {
+        mRemarksByAdmin = pRemarksByAdmin;
+    }
+
+    public String getComplaintID() {
+        return mComplaintID;
+    }
+
+    public void setComplaintID(String pComplaintID) {
+        mComplaintID = pComplaintID;
     }
 
     public String getRequestId() {

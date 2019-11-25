@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Callback;
@@ -58,6 +59,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
         TextView category, title, desc, requestID, dataTime;
         ImageView mImageView;
         ProgressBar mProgressBar;
+        CardView mComplainTab;
 
         HomeHolder(@NonNull View itemView) {
             super(itemView);
@@ -68,9 +70,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
             dataTime = itemView.findViewById(R.id.complain_time);
             mImageView = itemView.findViewById(R.id.complain_image_preview);
             mProgressBar = itemView.findViewById(R.id.complain_image_preview_progressbar);
+            mComplainTab = itemView.findViewById(R.id.Main_complainTab);
         }
 
-        void update(ComplaintModel pComplaintModel) {
+        void update(final ComplaintModel pComplaintModel) {
             if (pComplaintModel.getComplaintImage() == null) {
                 mImageView.setVisibility(View.GONE);
                 mProgressBar.setVisibility(View.GONE);
@@ -96,7 +99,14 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
             requestID.setText(String.format("Request ID: %s", pComplaintModel.getRequestId()));
             dataTime.setText(String.format("Date: %s", Utils.getDateTime(pComplaintModel.getTimestamp())));
             category.setText(pComplaintModel.getComplaintCategory());
-
+           mComplainTab.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View pView) {
+                   Intent intent = new Intent(mContext,ComplaintDetailsActivity.class);
+                   intent.putExtra("complainId",pComplaintModel.getComplaintID());
+                   mContext.startActivity(intent);
+               }
+           });
         }
     }
 }

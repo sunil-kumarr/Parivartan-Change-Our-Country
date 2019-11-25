@@ -104,29 +104,30 @@ public class PhoneNumberStep extends Step<String> {
 
     @Override
     protected void onStepOpened(boolean animated) {
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
-        if(mFirebaseUser!=null) {
-            String num = mFirebaseUser.getPhoneNumber();
-            updateTitle("Mobile Number:"+num,true);
-            getFormView().goToNextStep(true);
-            isStepDataValid(num.substring(3,13));
-            markAsCompleted(true);
-            mSendCode.setText("Update");
-        }
+//        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+//        if(mFirebaseUser!=null) {
+//            String num = mFirebaseUser.getPhoneNumber();
+//            updateTitle("Mobile Number:"+num,true);
+//            getFormView().goToNextStep(true);
+//            isStepDataValid(num.substring(3,13));
+//            markAsCompleted(true);
+//            mSendCode.setText("Update");
+//        }
     }
 
     @Override
     protected void onStepClosed(boolean animated) {
         // This will be called automatically whenever the step gets closed.
+        isStepDataValid(getStepData());
+        updateTitle("Mobile Number:"+getStepData(),true);
+        mLinearLayout.setVisibility(View.GONE);
+
     }
 
     @Override
     protected void onStepMarkedAsCompleted(boolean animated) {
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
-        if (mFirebaseUser != null && getTitle().equals("Verify Mobile Number(Required")) {
-            isStepDataValid(mFirebaseUser.getPhoneNumber().substring(3,13));
-             updateTitle("Mobile Number:"+getStepData(),true);
-        }
+
+         onStepClosed(true);
 
         // This will be called automatically whenever the step is marked as completed.
     }

@@ -38,10 +38,8 @@ import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 public class RegisterComplaint extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 165;
@@ -117,7 +115,7 @@ public class RegisterComplaint extends AppCompatActivity {
         mDialog.setMessage("Registering...");
         mDialog.setCanceledOnTouchOutside(false);
         mDialog.show();
-        uploadImage(title, desc, location, pCurrentAddress);
+        uploadImage(location,title, desc, pCurrentAddress);
 
     }
 
@@ -199,6 +197,7 @@ public class RegisterComplaint extends AppCompatActivity {
                             phoneNumber,
                             pCurrentAddress,
                             shortId,
+                            productId,
                             System.currentTimeMillis());
 
             mDatabaseReference.child(productId).setValue(complaintModel)
@@ -206,7 +205,7 @@ public class RegisterComplaint extends AppCompatActivity {
                         @Override
                         public void onSuccess(Void aVoid) {
 
-                            UserView userView = new UserView();
+                            ComplaintInfo userView = new ComplaintInfo();
                             userView.setComplainID(productId);
                             mUserComplaint.child(userId).child(shortId).setValue(userView);
                             Toast.makeText(RegisterComplaint.this, "Complaint Registered.", Toast.LENGTH_SHORT).show();

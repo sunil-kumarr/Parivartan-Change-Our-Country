@@ -13,6 +13,7 @@
         android:roundIcon="@mipmap/ic_app_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".ComplaintDetailsActivity" android:theme="@style/loginTheme"></activity>
         <activity
             android:name=".SplashAcitivty"
             android:theme="@style/loginTheme">
@@ -25,9 +26,7 @@
         <activity android:name=".RegisterComplaint" />
         <activity
             android:name=".LoginActivity"
-            android:theme="@style/loginTheme">
-
-        </activity>
+            android:theme="@style/loginTheme"></activity>
         <activity android:name=".MainActivity" />
     </application>
 
