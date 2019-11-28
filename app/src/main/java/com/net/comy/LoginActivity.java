@@ -23,6 +23,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Collections;
 import java.util.List;
@@ -55,7 +56,7 @@ public class LoginActivity extends AppCompatActivity
     setContentView(R.layout.activity_login);
     // Create the steps.
     mFirebaseAuth = FirebaseAuth.getInstance();
-    userNameStep = new PhoneNumberStep("Verify Mobile Number(Required)");
+    userNameStep = new PhoneNumberStep("Verify Mobile Number(Required)","Enter 10 digit mobile number.");
     mGoogleSignInStep =
         new GoogleSignInStep(
             "Google SignIn (Required)",
@@ -114,6 +115,7 @@ public class LoginActivity extends AppCompatActivity
 
   @Override
   public void onCompletedForm() {
+
     startActivity(new Intent(LoginActivity.this,MainActivity.class));
     finish();
   }
@@ -213,10 +215,10 @@ public class LoginActivity extends AppCompatActivity
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                   if (task.isSuccessful()) {
-                    verticalStepperForm.markOpenStepAsCompleted(true);
+                    verticalStepperForm.markStepAsCompleted(2,true);
                     verticalStepperForm.goToNextStep(true);
                   } else {
-                    Toast.makeText(LoginActivity.this, "Verification Failed", Toast.LENGTH_SHORT)
+                    Toast.makeText(LoginActivity.this, "Verification Failed"+task.getException(), Toast.LENGTH_SHORT)
                         .show();
                   }
                 }

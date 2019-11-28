@@ -16,55 +16,59 @@ import ernestoyaquello.com.verticalstepperform.Step;
 
 public class PhoneNumberStep extends Step<String> {
 
-    private EditText mobileNumber,verification_code;
+    private EditText mobileNumber, verification_code;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     private LinearLayout mLinearLayout;
     PhoneVerification phoneVerification;
-    private Button mSendCode,mVerify,mResend;
+    private Button mSendCode, mVerify, mResend;
 
-    public PhoneNumberStep(String stepTitle) {
-        super(stepTitle);
+    public PhoneNumberStep(String stepTitle,String subTitle) {
+        super(stepTitle,subTitle);
         mFirebaseAuth = FirebaseAuth.getInstance();
     }
+
     @Override
     protected View createStepContentLayout() {
-        mLinearLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.username_step,null,false);
+        mLinearLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.username_step, null, false);
         mobileNumber = mLinearLayout.findViewById(R.id.edt_mobile_number);
         verification_code = mLinearLayout.findViewById(R.id.edt_verification_code);
         mSendCode = mLinearLayout.findViewById(R.id.send_code_btn);
         mVerify = mLinearLayout.findViewById(R.id.verify_btn);
         mResend = mLinearLayout.findViewById(R.id.resend_btn);
+
         mVerify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View pView) {
-               String code = verification_code.getText().toString();
-               if(!TextUtils.isEmpty(code)){
-                   phoneVerification.verifyCode(code);
-               }else{
-                   verification_code.setError("wrong code");
-               }
+                String code = verification_code.getText().toString();
+                if (!TextUtils.isEmpty(code)) {
+                    phoneVerification.verifyCode(code);
+                } else {
+                    verification_code.setError("wrong code");
+                }
 
             }
         });
-    mSendCode.setOnClickListener(
-        new View.OnClickListener() {
-          @Override
-          public void onClick(View pView) {
-            phoneVerification = (PhoneVerification) getContext();
-            String number = getStepData();
-            if (number.length() == 10) {
-                String realNum = "+91"+number;
-              phoneVerification.startPhoneNumberVerification(realNum);
-              mSendCode.setText("Verify");
-              verification_code.setVisibility(View.VISIBLE);
-              mResend.setVisibility(View.VISIBLE);
-              mobileNumber.setEnabled(false);
-            }else{
-                mobileNumber.setError("Invalid Number");
-            }
-          }
-        });
+
+        mSendCode.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View pView) {
+                        phoneVerification = (PhoneVerification) getContext();
+                        String number = getStepData();
+                        if (number.length() == 10) {
+                            String realNum = "+91" + number;
+                            phoneVerification.startPhoneNumberVerification(realNum);
+                            mSendCode.setVisibility(View.GONE);
+                            verification_code.setVisibility(View.VISIBLE);
+                            mResend.setVisibility(View.VISIBLE);
+                            mVerify.setVisibility(View.VISIBLE);
+                            mobileNumber.setEnabled(true);
+                        } else {
+                            mobileNumber.setError("Invalid Number");
+                        }
+                    }
+                });
         mobileNumber.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence pCharSequence, int pI, int pI1, int pI2) {
@@ -73,7 +77,7 @@ public class PhoneNumberStep extends Step<String> {
 
             @Override
             public void onTextChanged(CharSequence pCharSequence, int pI, int pI1, int pI2) {
-                    markAsCompletedOrUncompleted(true);
+                markAsCompletedOrUncompleted(true);
             }
 
             @Override
@@ -81,14 +85,16 @@ public class PhoneNumberStep extends Step<String> {
 
             }
         });
-        return  mLinearLayout;
+        return mLinearLayout;
     }
 
     @Override
     protected IsDataValid isStepDataValid(String stepData) {
-        boolean isNameValid = stepData.length() == 10;
-        String errorMessage = !isNameValid ? "Enter 10 digit mobile number" : "";
-        return new IsDataValid(isNameValid, errorMessage);
+        boolean isvalid =false;
+        if(stepData.equals("verified")){
+            isvalid=true;
+        }
+        return new IsDataValid(isvalid);
     }
 
     @Override
@@ -117,17 +123,14 @@ public class PhoneNumberStep extends Step<String> {
 
     @Override
     protected void onStepClosed(boolean animated) {
-        // This will be called automatically whenever the step gets closed.
-        isStepDataValid(getStepData());
-        updateTitle("Mobile Number:"+getStepData(),true);
-        mLinearLayout.setVisibility(View.GONE);
 
     }
 
     @Override
     protected void onStepMarkedAsCompleted(boolean animated) {
-
-         onStepClosed(true);
+        // updateTitle("Mobile Number:"+getStepData(),true);
+        isStepDataValid("verified");
+        onStepClosed(true);
 
         // This will be called automatically whenever the step is marked as completed.
     }
@@ -143,8 +146,9 @@ public class PhoneNumberStep extends Step<String> {
 //        mobileNumber.setText(stepData);
     }
 
-    public  interface PhoneVerification {
-     void startPhoneNumberVerification(String phonenumber);
-     void verifyCode(String code);
+    public interface PhoneVerification {
+        void startPhoneNumberVerification(String phonenumber);
+
+        void verifyCode(String code);
     }
 }

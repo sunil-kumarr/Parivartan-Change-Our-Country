@@ -70,7 +70,7 @@ public class FragmentComplainOpen extends Fragment {
                             UserAdminView userAdminView = pDataSnapshot.getValue(UserAdminView.class);
                             mDatabaseReference = mFirebaseDatabase.getReference("users").child(userID);
                             mComplaints = mFirebaseDatabase.getReference("complaints");
-                            if(userAdminView!=null){
+                            if(userAdminView!=null && mFirebaseAuth.getCurrentUser()!=null){
                                 if(userAdminView.getFirebaseID().equals(mFirebaseAuth.getCurrentUser().getUid())){
                                     mComplaints.addChildEventListener(new ChildEventListener() {
                                         @Override
@@ -152,7 +152,8 @@ public class FragmentComplainOpen extends Fragment {
 
                                         @Override
                                         public void onCancelled(@NonNull DatabaseError pDatabaseError) {
-
+                                          mShimmerFrameLayout.stopShimmer();
+                                          mShimmerFrameLayout.setVisibility(View.GONE);
                                         }
                                     });
                                 }

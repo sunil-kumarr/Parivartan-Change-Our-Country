@@ -70,7 +70,7 @@ public class FragmentComplainClosed  extends Fragment {
                             UserAdminView userAdminView = pDataSnapshot.getValue(UserAdminView.class);
                             mDatabaseReference = mFirebaseDatabase.getReference("users").child(userID);
                             mComplaints = mFirebaseDatabase.getReference("complaints");
-                            if(userAdminView!=null){
+                            if(userAdminView!=null && mFirebaseAuth.getCurrentUser()!=null){
                                 if(userAdminView.getFirebaseID().equals(mFirebaseAuth.getCurrentUser().getUid())){
                                     mComplaints.addChildEventListener(new ChildEventListener() {
                                         @Override
@@ -118,7 +118,7 @@ public class FragmentComplainClosed  extends Fragment {
                                                     ComplaintModel complaintModel =pDataSnapshot.getValue(ComplaintModel.class);
                                                     // Toast.makeText(mContext, ""+complaintModel.getComplaintTitle(), Toast.LENGTH_SHORT).show();
                                                     if(complaintModel!=null) {
-                                                        if (("open").equals(complaintModel.getStatus())) {
+                                                        if (("closed").equals(complaintModel.getStatus())) {
                                                             mNoComplaint.setVisibility(View.GONE);
                                                             homeAdapter.addComplainFromFirebase(complaintModel);
                                                         }
