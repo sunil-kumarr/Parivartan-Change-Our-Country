@@ -13,7 +13,9 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -53,7 +55,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
     private static final int MY_LOCATION = 143;
-    private static final int REQUEST_CHECK_SETTINGS = 123 ;
+    private static final int REQUEST_CHECK_SETTINGS = 123;
     private ComBookAdapter adapter;
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -63,12 +65,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private Toolbar mToolbar;
     private LocationCallback locationCallback;
     private Geocoder mGeocoder;
+    private EditText mSearchView;
     private Location mCurrentLocation;
     private LocationRequest locationRequest;
     private ShimmerFrameLayout mShimmerFrameLayout;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private FirebaseDatabase mFirebaseDatabase;
-    private int TabIcons[] = {R.drawable.ic_assignment,R.drawable.ic_pending,R.drawable.ic_completed};
+    private int TabIcons[] = {R.drawable.ic_assignment, R.drawable.ic_pending, R.drawable.ic_completed};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,14 +85,21 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         mToolbar = findViewById(R.id.toolbar_location);
         setSupportActionBar(mToolbar);
+        mSearchView = findViewById(R.id.search_view);
+        mSearchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View pView) {
+                startActivity(new Intent(MainActivity.this, SearchActivity.class));
 
+            }
+        });
         mRegisterComplaint = findViewById(R.id.register_com_button);
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewpager);
         adapter = new ComBookAdapter(getSupportFragmentManager(), MainActivity.this);
-        adapter.addFragment(new FragmentComplainOpen(), "Open",TabIcons[0]);
+        adapter.addFragment(new FragmentComplainOpen(), "Open", TabIcons[0]);
 //        adapter.addFragment(new FragmentComplainInProgress(), "Pending",TabIcons[1]);
-        adapter.addFragment(new FragmentComplainClosed(), "Closed",TabIcons[2]);
+        adapter.addFragment(new FragmentComplainClosed(), "Closed", TabIcons[2]);
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
         highLightCurrentTab(0);
@@ -97,10 +107,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
             }
+
             @Override
             public void onPageSelected(int position) {
                 highLightCurrentTab(position);
             }
+
             @Override
             public void onPageScrollStateChanged(int state) {
             }
@@ -113,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 startActivity(intent);
             }
         });
-        if(checkLocationPermission()){
+        if (checkLocationPermission()) {
             createLocationRequest();
         }
         setAdminControls();
@@ -135,14 +147,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         };
     }
 
-    private void setAdminControls(){
+    private void setAdminControls() {
         mFirebaseDatabase.getReference("admin")
                 .addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
                         UserAdminView userAdminView = pDataSnapshot.getValue(UserAdminView.class);
-                        if(userAdminView!=null){
-                            if(userAdminView.getFirebaseID().equals(mCurrentUser.getUid())){
+                        if (userAdminView != null) {
+                            if (userAdminView.getFirebaseID().equals(mCurrentUser.getUid())) {
                                 mRegisterComplaint.setVisibility(View.GONE);
                                 mToolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_person_24px));
                             }
@@ -170,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     }
                 });
     }
+
     private void highLightCurrentTab(int position) {
         for (int i = 0; i < tabLayout.getTabCount(); i++) {
             TabLayout.Tab tab = tabLayout.getTabAt(i);
@@ -182,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         tab.setCustomView(null);
         tab.setCustomView(adapter.getSelectedTabView(position));
     }
+
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
     public boolean checkLocationPermission() {
@@ -271,11 +285,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 .addOnCompleteListener(new OnCompleteListener<Location>() {
                     @Override
                     public void onComplete(@NonNull Task<Location> pTask) {
-                     if(pTask.isSuccessful()){
-                         mCurrentLocation = pTask.getResult();
-                     }else{
-                         mToolbar.setTitle("No Location Found!");
-                     }
+                        if (pTask.isSuccessful()) {
+                            mCurrentLocation = pTask.getResult();
+                        } else {
+                            mToolbar.setTitle("No Location Found!");
+                        }
                     }
                 });
     }
@@ -289,8 +303,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     @Override
     protected void onStart() {
         super.onStart();
-        if(mCurrentUser==null){
-            startActivity(new Intent(MainActivity.this,LoginActivity.class));
+        if (mCurrentUser == null) {
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
             finish();
         }
         ComplaintInfo complaintInfo = new ComplaintInfo();
@@ -305,9 +319,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-                startLocationUpdates();
+            startLocationUpdates();
         }
     }
+
     private void startLocationUpdates() {
         mFusedLocationProviderClient.requestLocationUpdates(locationRequest,
                 locationCallback,
@@ -317,21 +332,22 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     @Override
     protected void onPause() {
         super.onPause();
-            stopLocationUpdates();
+        stopLocationUpdates();
     }
+
     private void stopLocationUpdates() {
         mFusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu,menu);
+        getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if(R.id.action_logout == item.getItemId()){
+        if (R.id.action_logout == item.getItemId()) {
             mFirebaseAuth.signOut();
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
             finish();

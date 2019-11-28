@@ -19,17 +19,23 @@
         app:titleTextAppearance="@style/TextAppearance.AppCompat.Small"
         app:titleTextColor="@color/white" />
 
-    <androidx.appcompat.widget.SearchView
+    <EditText
+        android:id="@+id/search_view"
         android:layout_width="match_parent"
-        android:layout_height="45dp"
+        android:background="@color/white"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
-        android:focusableInTouchMode="true"
-        android:background="@color/white"
-        app:defaultQueryHint="search here"
-        app:iconifiedByDefault="true"
-        app:searchIcon="@drawable/ic_search_black_24dp" />
+        android:padding="10dp"
+        android:focusedByDefault="false"
+        android:enabled="true"
+        android:editable="false"
+        android:focusableInTouchMode="false"
+        android:drawableLeft="@drawable/ic_search_black_24dp"
+        android:hint="Search your complaints here..."
+        android:textColorHint="@color/gray"
+        android:drawablePadding="5dp"
+        android:layout_height="match_parent" />
 
 </LinearLayout>

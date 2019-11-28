@@ -50,6 +50,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
         holder.update(mComplaintModelList.get(position));
     }
 
+    void updateList(List<ComplaintModel> list){
+        mComplaintModelList = list;
+        notifyDataSetChanged();
+    }
     @Override
     public int getItemCount() {
         return mComplaintModelList.size();
