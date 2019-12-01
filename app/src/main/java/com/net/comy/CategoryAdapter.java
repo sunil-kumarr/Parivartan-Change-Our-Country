@@ -1,52 +1,85 @@
 package com.net.comy;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-public class CategoryAdapter extends ArrayAdapter {
+public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryHolder> {
     private Context mContext;
-    private ArrayList<String> typesOFCategory;
-    private ArrayList<Integer> images;
+    private ArrayList<String> categoryNames;
+    private ArrayList<Integer> categoryImages;
+    private ArrayList<LinearLayout> mLayoutArrayList;
+    private String mSelectedItem;
 
-    public CategoryAdapter(@NonNull Context context, int resource, ArrayList<String> pTypesOFCategory, ArrayList<Integer> pImages) {
-        super(context, resource);
-        typesOFCategory = pTypesOFCategory;
-        mContext=context;
-        images = pImages;
+    public CategoryAdapter(Context pContext, ArrayList<String> pCategoryNames, ArrayList<Integer> pCategoryImages) {
+        mContext = pContext;
+        categoryNames = pCategoryNames;
+        categoryImages = pCategoryImages;
+        mLayoutArrayList = new ArrayList<>();
     }
 
-    public View getCustomView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = LayoutInflater.from(mContext);
-        TextView layout = (TextView) inflater.inflate(R.layout.category_itme, parent, false);
-        TextView tvLanguage = layout.findViewById(R.id.category_item_tab);
-        tvLanguage.setText(typesOFCategory.get(position));
-        Drawable icon = mContext.getResources().getDrawable(images.get(position));
-        tvLanguage.setCompoundDrawables(icon,null,null,null);
-        return layout;
+    @NonNull
+    @Override
+    public CategoryHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(mContext).inflate(R.layout.layout_complain_category, parent, false);
+        return new CategoryHolder(view);
     }
 
     @Override
-    public View getDropDownView(int position, View convertView, ViewGroup parent) {
-        return getCustomView(position, convertView, parent);
+    public void onBindViewHolder(@NonNull CategoryHolder holder, int position) {
+        holder.update(position);
     }
 
     @Override
-    public int getCount() {
-        return typesOFCategory.size();
+    public int getItemCount() {
+        return categoryNames.size();
     }
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        return getCustomView(position, convertView, parent);
+    public String getSelectedItem() {
+        return mSelectedItem;
     }
+
+    class CategoryHolder extends RecyclerView.ViewHolder {
+        private ImageView mCategoryImage;
+        private TextView mCategoryName;
+        private LinearLayout mContainer;
+
+        public CategoryHolder(@NonNull View itemView) {
+            super(itemView);
+            mCategoryName = itemView.findViewById(R.id.Name);
+            mCategoryImage = itemView.findViewById(R.id.Image);
+            mContainer = itemView.findViewById(R.id.container_tab);
+        }
+
+        public void update(final int pPosition) {
+            mCategoryName.setText(categoryNames.get(pPosition));
+            mCategoryImage.setImageResource(categoryImages.get(pPosition));
+            if(!mLayoutArrayList.contains(mContainer)){
+                mLayoutArrayList.add(mContainer);
+            }
+            mContainer.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View pView) {
+                    for(LinearLayout layout:mLayoutArrayList){
+                        layout.setBackgroundResource(R.drawable.category_box);
+                    }
+                    mContainer.setBackgroundResource(R.drawable.category_box_selected);
+                    mSelectedItem = categoryNames.get(pPosition);
+                }
+            });
+
+        }
+    }
+
+
 }

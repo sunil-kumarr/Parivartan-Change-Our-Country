@@ -1,7 +1,9 @@
 package com.net.comy;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
@@ -11,13 +13,21 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatSpinner;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -43,15 +53,18 @@ import java.util.Locale;
 
 public class RegisterComplaint extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 165;
-    private AppCompatSpinner mCategorySpinner;
     private Uri mImageUri;
     private ImageView mImageView;
     private String fileLink;
-    private FloatingActionButton mGetImage;
+    private FloatingActionButton mNextButton;
     ArrayList<String> names;
     private String currentAddress;
     private EditText mComplaintAddress, mComplaintTitle, mComplaintDesc;
     private ProgressDialog mDialog;
+    private FrameLayout mFragmentContainer;
+    private RecyclerView mRecyclerView;
+    private ConstraintLayout mStepOne,mStepTwo;
+    private Button mNextStepBtn,mRegisterBtn,mGetImage;
 
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private FirebaseDatabase mFirebaseDatabase;
@@ -60,6 +73,10 @@ public class RegisterComplaint extends AppCompatActivity {
     private StorageReference mStorageReference;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
+    private Geocoder mGeocoder;
+    private CategoryAdapter adapter;
+
+    private FragmentManager mFragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,31 +90,98 @@ public class RegisterComplaint extends AppCompatActivity {
         mStorageReference = mFirebaseStorage.getReference("complaint_images");
         mUserComplaint = mFirebaseDatabase.getReference("users");
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        mGeocoder = new Geocoder(this);
 
-        mCategorySpinner = findViewById(R.id.complaint_main_category);
-        names = new ArrayList<>();
-        names.add("Select Complaint Categoty");
-        names.add("Restaurant");
-        names.add("Hotels");
-        ArrayList<Integer> images = new ArrayList<>();
-        images.add(R.drawable.ic_keyboard_arrow_down_black_24dp);
-        images.add(R.drawable.ic_restaurant);
-        images.add(R.drawable.ic_hotel);
-        CategoryAdapter adapter = new CategoryAdapter(this, R.layout.category_itme, names, images);
-        mCategorySpinner.setAdapter(adapter);
+        mStepOne = findViewById(R.id.container_step_1);
+        mStepTwo = findViewById(R.id.container_step_2);
+        setUpRegisterStepOne();
+        setUpRegisterStepTwo();
+    }
+
+
+    private void setUpRegisterStepTwo() {
         mImageView = findViewById(R.id.complaint_image);
-        mGetImage = findViewById(R.id.add_image_button);
+        mGetImage = findViewById(R.id.add_complaint_image);
         mComplaintAddress = findViewById(R.id.edt_complaint_location);
         mComplaintDesc = findViewById(R.id.edt_complaint_description);
         mComplaintTitle = findViewById(R.id.edt_complaint_title);
+        mRegisterBtn = findViewById(R.id.register_com_button);
         mGetImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View pView) {
                 openFileChooser();
             }
         });
+        mRegisterBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View pView) {
+                mFusedLocationProviderClient.getLastLocation()
+                        .addOnCompleteListener(new OnCompleteListener<Location>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Location> pTask) {
+                                if (pTask.isSuccessful()) {
+                                    Location pTaskResult = pTask.getResult();
+                                    try {
+                                        List<Address> addressList = mGeocoder.getFromLocation(pTaskResult.getLatitude(),pTaskResult.getLongitude(),1);
+                                        Address address = addressList.get(0);
+                                        StringBuilder sb = new StringBuilder();
+                                        for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
+                                            sb.append(address.getAddressLine(i)).append("\n");
+                                        }
+                                        sb.append(address.getLocality()).append("\n");
+                                        sb.append(address.getPostalCode()).append("\n");
+                                        sb.append(address.getCountryName());
+                                        currentAddress = sb.toString();
+                                        registerComplaint(currentAddress);
+                                    } catch (IOException pE) {
+                                        pE.printStackTrace();
+                                    }
 
+                                } else {
+                                    Toast.makeText(RegisterComplaint.this, "Location Error!!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+            }
+        });
+    }
 
+    private void setUpRegisterStepOne() {
+        mNextStepBtn = findViewById(R.id.next_step_btn);
+        mRecyclerView = findViewById(R.id.category_select_rec_view);
+        ArrayList<String> names = new ArrayList<>();
+        names.add("Government");
+        names.add("Restaurant");
+        names.add("Hotels");
+        names.add("Government");
+        names.add("Restaurant");
+        names.add("Hotels");
+        names.add("Government");
+        names.add("Restaurant");
+        names.add("Hotels");
+        ArrayList<Integer> images = new ArrayList<>();
+        images.add(R.drawable.ic_government);
+        images.add(R.drawable.ic_restaurant);
+        images.add(R.drawable.ic_hotel);
+        images.add(R.drawable.ic_government);
+        images.add(R.drawable.ic_restaurant);
+        images.add(R.drawable.ic_hotel);
+        images.add(R.drawable.ic_government);
+        images.add(R.drawable.ic_restaurant);
+        images.add(R.drawable.ic_hotel);
+        adapter = new CategoryAdapter(this,names,images);
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this,3));
+        mRecyclerView.setAdapter(adapter);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mNextStepBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View pView) {
+                mStepOne.setVisibility(View.GONE);
+                mStepTwo.setVisibility(View.VISIBLE);
+                TextView view = findViewById(R.id.toolbar_custom);
+                view.setText("Enter Complaint Details");
+            }
+        });
     }
 
     public void registerComplaint(String pCurrentAddress) {
@@ -109,42 +193,13 @@ public class RegisterComplaint extends AppCompatActivity {
             return;
         }
         if (TextUtils.isEmpty(title) || TextUtils.isEmpty(desc) || TextUtils.isEmpty(location)) {
+            Toast.makeText(this, "Invalid inputs!!", Toast.LENGTH_SHORT).show();
             return;
         }
-        mDialog = new ProgressDialog(this);
-        mDialog.setMessage("Registering...");
-        mDialog.setCanceledOnTouchOutside(false);
-        mDialog.show();
-        uploadImage(location,title, desc, pCurrentAddress);
+        checkImageFile(location,title, desc, pCurrentAddress);
 
     }
 
-    public void getCurrentLocationAndRegister(View pView) {
-        mFusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-            @Override
-            public void onComplete(@NonNull Task<Location> pTask) {
-                if (pTask.isSuccessful()) {
-                    Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
-                    Location location = pTask.getResult();
-                    List<Address> address = null;
-                    try {
-                        address = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                        if (address.size() > 0) {
-                            currentAddress = address.get(0).getAddressLine(0);
-                            Toast.makeText(RegisterComplaint.this, "" + currentAddress, Toast.LENGTH_SHORT).show();
-                            registerComplaint(currentAddress);
-                        } else {
-                            Toast.makeText(RegisterComplaint.this, "Come back later.", Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (IOException pE) {
-                        pE.printStackTrace();
-                    }
-                } else {
-                    Toast.makeText(RegisterComplaint.this, "Error while fetching location!!", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }
 
     private void openFileChooser() {
         Intent intent = new Intent();
@@ -160,7 +215,7 @@ public class RegisterComplaint extends AppCompatActivity {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
                 && data != null && data.getData() != null) {
             mImageUri = data.getData();
-            Picasso.get().load(mImageUri).into(mImageView);
+            Picasso.get().load(mImageUri).fit().into(mImageView);
 
         }
     }
@@ -174,16 +229,14 @@ public class RegisterComplaint extends AppCompatActivity {
     private void addDataToFirebase(String fileLink, String location, String title, String desc, String pCurrentAddress) {
         mDatabaseReference = mFirebaseDatabase.getReference("complaints");
         final String productId = mDatabaseReference.push().getKey();
-        if (mFirebaseUser != null && fileLink != null) {
+
+        if (mFirebaseUser != null ) {
             final String userId = mFirebaseUser.getUid();
             final String userEmail = mFirebaseUser.getEmail();
             String phoneNumber = mFirebaseUser.getPhoneNumber();
 
-            int position = mCategorySpinner.getSelectedItemPosition();
             String category = "General";
-            if (position != 0) {
-                category = names.get(position);
-            }
+            category = adapter.getSelectedItem();
             final String shortId = Utils.getAlphaNumericString(10);
             ComplaintModel complaintModel =
                     new ComplaintModel(
@@ -223,6 +276,28 @@ public class RegisterComplaint extends AppCompatActivity {
         }
     }
 
+    void checkImageFile(final String location, final String title, final String desc, final String pCurrentAddress){
+        if(fileLink == null){
+            new AlertDialog.Builder(this)
+                    .setTitle("No Image Selected!")
+                    .setMessage("Do you want to continue?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface pDialogInterface, int pI) {
+                            mDialog = new ProgressDialog(RegisterComplaint.this);
+                            mDialog.setMessage("Registering...");
+                            mDialog.setCanceledOnTouchOutside(false);
+                            mDialog.show();
+                            uploadImage(location,title, desc, pCurrentAddress);
+                        }
+                    }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface pDialogInterface, int pI) {
+                    Toast.makeText(RegisterComplaint.this, "Cancelled !", Toast.LENGTH_SHORT).show();
+                }
+            }).create().show();
+        }
+    }
     private void uploadImage(final String location, final String title, final String desc, final String pCurrentAddress) {
         if (mImageUri != null) {
             final StorageReference fileReference = mStorageReference.child(System.currentTimeMillis()
@@ -261,8 +336,11 @@ public class RegisterComplaint extends AppCompatActivity {
                         }
                     });
         } else {
-            Toast.makeText(RegisterComplaint.this, "No file selected", Toast.LENGTH_SHORT).show();
+            addDataToFirebase(null, location, title, desc, pCurrentAddress);
         }
     }
 
+    public void goBackNow(View view) {
+        finish();
+    }
 }

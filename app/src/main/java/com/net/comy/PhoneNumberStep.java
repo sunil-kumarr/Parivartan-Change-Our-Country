@@ -60,10 +60,10 @@ public class PhoneNumberStep extends Step<String> {
                             String realNum = "+91" + number;
                             phoneVerification.startPhoneNumberVerification(realNum);
                             mSendCode.setVisibility(View.GONE);
+                            mobileNumber.setEnabled(false);
                             verification_code.setVisibility(View.VISIBLE);
                             mResend.setVisibility(View.VISIBLE);
                             mVerify.setVisibility(View.VISIBLE);
-                            mobileNumber.setEnabled(true);
                         } else {
                             mobileNumber.setError("Invalid Number");
                         }
@@ -130,6 +130,11 @@ public class PhoneNumberStep extends Step<String> {
     protected void onStepMarkedAsCompleted(boolean animated) {
         // updateTitle("Mobile Number:"+getStepData(),true);
         isStepDataValid("verified");
+        mResend.setVisibility(View.GONE);
+        mVerify.setVisibility(View.GONE);
+        verification_code.setVisibility(View.GONE);
+        mSendCode.setVisibility(View.VISIBLE);
+        mobileNumber.setText("");
         onStepClosed(true);
 
         // This will be called automatically whenever the step is marked as completed.

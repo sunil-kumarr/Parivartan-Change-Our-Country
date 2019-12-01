@@ -1,7 +1,6 @@
 package com.net.comy;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -38,7 +37,7 @@ public class ComBookAdapter extends FragmentStatePagerAdapter {
     mFragmentIconList.add(tabIcon);
   }
   public View getTabView(int position) {
-    View view = LayoutInflater.from(context).inflate(R.layout.custom_tabl_tablayout, null);
+    View view = LayoutInflater.from(context).inflate(R.layout.home_viewpager_open_close_tab, null);
     TextView tabTextView = view.findViewById(R.id.tabTextView);
     tabTextView.setText(mFragmentTitleList.get(position));
     ImageView imageView = view.findViewById(R.id.tabIcon);
@@ -46,7 +45,7 @@ public class ComBookAdapter extends FragmentStatePagerAdapter {
     return view;
   }
   public View getSelectedTabView(int position) {
-    View view = LayoutInflater.from(context).inflate(R.layout.custom_tabl_tablayout, null);
+    View view = LayoutInflater.from(context).inflate(R.layout.home_viewpager_open_close_tab, null);
     TextView tabTextView = view.findViewById(R.id.tabTextView);
     tabTextView.setText(mFragmentTitleList.get(position));
     tabTextView.setTextColor(ContextCompat.getColor(context, R.color.red));

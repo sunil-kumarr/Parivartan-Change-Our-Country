@@ -9,18 +9,9 @@
         <item name="actionBarItemBackground">@color/red</item>
     </style>
 
-    <style name="MyToolbarTheme"
-        parent="@style/ThemeOverlay.AppCompat.Dark">
-        <item name="colorControlNormal">@color/white</item>
-        <item name="titleTextColor">@color/black</item>
-    </style>
     <style name="loginTheme" parent="AppTheme">
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">@color/white</item>
-    </style>
-
-    <style name="StyledDialog" parent="@android:style/Theme.Dialog">
-        <item name="android:windowBackground">@color/white</item>
     </style>
 
 </resources>
