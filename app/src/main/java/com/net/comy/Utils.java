@@ -1,5 +1,7 @@
 package com.net.comy;
 
+import android.util.DisplayMetrics;
+
 import java.security.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -34,6 +36,12 @@ public class Utils {
     public static String getDateTime(long timestamp) {
         Date date = new Date(timestamp);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy' 'HH:mm:ss");
+        return simpleDateFormat.format(date);
+    }
+
+    public static String getMessageTime(long timestamp) {
+        Date date = new Date(timestamp);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm' 'dd/MM");
         return simpleDateFormat.format(date);
     }
 }

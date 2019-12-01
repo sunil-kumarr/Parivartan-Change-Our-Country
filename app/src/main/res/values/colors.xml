@@ -8,4 +8,6 @@
     <color name="gray">#4D4A4A</color>
     <color name="recycler_back">#E6E4E4</color>
     <color name="red">#F44336</color>
+    <color name="gray_100">#888787</color>
+    <color name="message_color">#FC7B7B</color>
 </resources>

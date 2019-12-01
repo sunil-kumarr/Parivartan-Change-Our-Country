@@ -18,7 +18,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
         <ImageView
-            android:id="@+id/go_back"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:onClick="goBack"

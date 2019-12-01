@@ -118,6 +118,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             }
         });
 
+        findViewById(R.id.chat_Support_ping_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View pView) {
+                startActivity(new Intent(MainActivity.this,ChatPingActivity.class));
+            }
+        });
         mRegisterComplaint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View pView) {
