@@ -27,9 +27,10 @@ public class FragmentComplainOpen extends Fragment {
     private RecyclerView mRecyclerView;
     private FirebaseDatabase mFirebaseDatabase;
     private FirebaseAuth mFirebaseAuth;
-    private DatabaseReference mDatabaseReference,mComplaints;
+    private DatabaseReference mDatabaseReference, mComplaints;
     private LinearLayout mNoComplaint;
     private ShimmerFrameLayout mShimmerFrameLayout;
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -53,11 +54,11 @@ public class FragmentComplainOpen extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mRecyclerView = view.findViewById(R.id.complain_rec_view);
         mShimmerFrameLayout = view.findViewById(R.id.shimmer_view_container);
-        final HomeAdapter homeAdapter = new HomeAdapter( mContext, 1);
+        final HomeAdapter homeAdapter = new HomeAdapter(mContext, 1);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false));
         mRecyclerView.setAdapter(homeAdapter);
         mNoComplaint = view.findViewById(R.id.no_complaint_here);
-        
+
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
 
@@ -70,14 +71,14 @@ public class FragmentComplainOpen extends Fragment {
                             UserAdminView userAdminView = pDataSnapshot.getValue(UserAdminView.class);
                             mDatabaseReference = mFirebaseDatabase.getReference("users").child(userID);
                             mComplaints = mFirebaseDatabase.getReference("complaints");
-                            if(userAdminView!=null && mFirebaseAuth.getCurrentUser()!=null){
-                                if(userAdminView.getFirebaseID().equals(mFirebaseAuth.getCurrentUser().getUid())){
+                            if (userAdminView != null && mFirebaseAuth.getCurrentUser() != null) {
+                                if (userAdminView.getFirebaseID().equals(mFirebaseAuth.getCurrentUser().getUid())) {
                                     mComplaints.addChildEventListener(new ChildEventListener() {
                                         @Override
                                         public void onChildAdded(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
-                                            ComplaintModel complaintModel =pDataSnapshot.getValue(ComplaintModel.class);
+                                            ComplaintModel complaintModel = pDataSnapshot.getValue(ComplaintModel.class);
                                             // Toast.makeText(mContext, ""+complaintModel.getComplaintTitle(), Toast.LENGTH_SHORT).show();
-                                            if(complaintModel!=null) {
+                                            if (complaintModel != null) {
                                                 if (("open").equals(complaintModel.getStatus())) {
                                                     mNoComplaint.setVisibility(View.GONE);
                                                     homeAdapter.addComplainFromFirebase(complaintModel);
@@ -87,9 +88,10 @@ public class FragmentComplainOpen extends Fragment {
                                             mShimmerFrameLayout.setVisibility(View.GONE);
                                         }
 
+
                                         @Override
                                         public void onChildChanged(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
-                                                homeAdapter.notifyDataSetChanged();
+                                            homeAdapter.notifyDataSetChanged();
                                         }
 
                                         @Override
@@ -107,7 +109,7 @@ public class FragmentComplainOpen extends Fragment {
 
                                         }
                                     });
-                                }else{
+                                } else {
                                     mDatabaseReference.addChildEventListener(new ChildEventListener() {
                                         @Override
                                         public void onChildAdded(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
@@ -115,9 +117,9 @@ public class FragmentComplainOpen extends Fragment {
                                             mComplaints.child(userView.getComplainID()).addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
                                                 public void onDataChange(@NonNull DataSnapshot pDataSnapshot) {
-                                                    ComplaintModel complaintModel =pDataSnapshot.getValue(ComplaintModel.class);
+                                                    ComplaintModel complaintModel = pDataSnapshot.getValue(ComplaintModel.class);
                                                     // Toast.makeText(mContext, ""+complaintModel.getComplaintTitle(), Toast.LENGTH_SHORT).show();
-                                                    if(complaintModel!=null) {
+                                                    if (complaintModel != null) {
                                                         if (("open").equals(complaintModel.getStatus())) {
                                                             mNoComplaint.setVisibility(View.GONE);
                                                             homeAdapter.addComplainFromFirebase(complaintModel);
@@ -152,8 +154,8 @@ public class FragmentComplainOpen extends Fragment {
 
                                         @Override
                                         public void onCancelled(@NonNull DatabaseError pDatabaseError) {
-                                          mShimmerFrameLayout.stopShimmer();
-                                          mShimmerFrameLayout.setVisibility(View.GONE);
+                                            mShimmerFrameLayout.stopShimmer();
+                                            mShimmerFrameLayout.setVisibility(View.GONE);
                                         }
                                     });
                                 }

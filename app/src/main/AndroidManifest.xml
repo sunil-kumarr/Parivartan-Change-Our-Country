@@ -13,8 +13,11 @@
         android:roundIcon="@mipmap/ic_app_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ChatPingActivity"
-            android:parentActivityName=".MainActivity"></activity>
+        <activity android:name=".ChatAdminListActivity"></activity>
+        <activity
+            android:name=".ChatPingActivity"
+            android:windowSoftInputMode="adjustPan"
+            android:parentActivityName=".MainActivity" />
         <activity android:name=".SearchActivity" />
         <activity
             android:name=".ComplaintDetailsActivity"

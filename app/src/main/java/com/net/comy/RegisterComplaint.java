@@ -277,18 +277,14 @@ public class RegisterComplaint extends AppCompatActivity {
     }
 
     void checkImageFile(final String location, final String title, final String desc, final String pCurrentAddress){
-        if(fileLink == null){
+        if(mImageUri == null){
             new AlertDialog.Builder(this)
                     .setTitle("No Image Selected!")
                     .setMessage("Do you want to continue?")
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface pDialogInterface, int pI) {
-                            mDialog = new ProgressDialog(RegisterComplaint.this);
-                            mDialog.setMessage("Registering...");
-                            mDialog.setCanceledOnTouchOutside(false);
-                            mDialog.show();
-                            uploadImage(location,title, desc, pCurrentAddress);
+                            showRegisterDialogAndUpload(location, title, desc, pCurrentAddress);
                         }
                     }).setNegativeButton("No", new DialogInterface.OnClickListener() {
                 @Override
@@ -296,8 +292,19 @@ public class RegisterComplaint extends AppCompatActivity {
                     Toast.makeText(RegisterComplaint.this, "Cancelled !", Toast.LENGTH_SHORT).show();
                 }
             }).create().show();
+        }else{
+            showRegisterDialogAndUpload(location, title, desc, pCurrentAddress);
         }
     }
+
+    private void showRegisterDialogAndUpload(String location, String title, String desc, String pCurrentAddress) {
+        mDialog = new ProgressDialog(RegisterComplaint.this);
+        mDialog.setMessage("Registering...");
+        mDialog.setCanceledOnTouchOutside(false);
+        mDialog.show();
+        uploadImage(location,title, desc, pCurrentAddress);
+    }
+
     private void uploadImage(final String location, final String title, final String desc, final String pCurrentAddress) {
         if (mImageUri != null) {
             final StorageReference fileReference = mStorageReference.child(System.currentTimeMillis()

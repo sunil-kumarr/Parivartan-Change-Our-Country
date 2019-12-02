@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private FirebaseAuth mFirebaseAuth;
-    private FloatingActionButton mRegisterComplaint;
+    private FloatingActionButton mRegisterComplaint,mAdminPing;
     private FirebaseUser mCurrentUser;
     private Toolbar mToolbar;
     private LocationCallback locationCallback;
@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
             }
         });
+        mAdminPing = findViewById(R.id.chat_ping_messages_btn);
         mRegisterComplaint = findViewById(R.id.register_com_button);
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewpager);
@@ -124,6 +125,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             @Override
             public void onClick(View pView) {
                 startActivity(new Intent(MainActivity.this,ChatPingActivity.class));
+            }
+        });
+        mAdminPing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View pView) {
+                startActivity(new Intent(MainActivity.this,ChatAdminListActivity.class));
             }
         });
         mRegisterComplaint.setOnClickListener(new View.OnClickListener() {
@@ -156,10 +163,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
 
     private void setAdminControls() {
+
         SharedPreferences preferences = getSharedPreferences("adminCredentials",MODE_PRIVATE);
         isAdmin = preferences.getBoolean("isAdmin",false);
         if(isAdmin){
             mRegisterComplaint.setVisibility(View.GONE);
+            mAdminPing.setVisibility(View.VISIBLE);
             mToolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_person_24px));
         }
     }

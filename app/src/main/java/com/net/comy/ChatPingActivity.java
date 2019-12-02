@@ -8,6 +8,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -44,6 +46,9 @@ public class ChatPingActivity extends AppCompatActivity {
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mCurrentUser;
 
+    private boolean isAdmin;
+    private String userChatIdByAdmin;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,15 +73,84 @@ public class ChatPingActivity extends AppCompatActivity {
             mChatAdapter = new ChatAdapter(this, mFirebaseAuth.getCurrentUser().getUid());
             mChatRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
             mChatRecyclerView.setAdapter(mChatAdapter);
-            getMessageFromServer();
+            SharedPreferences preferences = getSharedPreferences("adminCredentials", MODE_PRIVATE);
+            isAdmin = preferences.getBoolean("isAdmin", false);
+            Toast.makeText(this, "Admin: "+isAdmin, Toast.LENGTH_SHORT).show();
+            if (isAdmin) {
+                Intent intent = getIntent();
+                userChatIdByAdmin = intent.getStringExtra("user_id");
+                Toast.makeText(this, ""+userChatIdByAdmin, Toast.LENGTH_SHORT).show();
+                if (userChatIdByAdmin != null) {
+                    getMessageFromServerForAdmin(userChatIdByAdmin);
+                }
+            } else {
+                getMessageFromServer();
+            }
         }
         mSendMessageBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View pView) {
-                sendMessageToServer();
+                if (isAdmin) {
+                    sendMessageToServerByAdmin(userChatIdByAdmin);
+                } else {
+                    sendMessageToServer();
+                }
             }
         });
 
+    }
+
+    private void sendMessageToServerByAdmin(String pUserChatIdByAdmin) {
+        String message = mChatMessageBox.getText().toString();
+        if (TextUtils.isEmpty(message)) return;
+        mCurrentUser = mFirebaseAuth.getCurrentUser();
+        if (mCurrentUser != null) {
+            final String userId = mCurrentUser.getUid();
+            final long timestamp = System.currentTimeMillis();
+            final String chatid = String.valueOf(timestamp);
+            final ChatMessageModel messageModel = new ChatMessageModel(message, userId, timestamp);
+            addMessageToChatNode(pUserChatIdByAdmin, chatid, messageModel);
+
+        }
+    }
+
+    private void getMessageFromServerForAdmin(String userId) {
+        mFirebaseDatabase.getReference("chats")
+                .child(userId)
+                .child("messages")
+                .addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
+                        if (pDataSnapshot.exists()) {
+//                            Toast.makeText(ChatPingActivity.this, "here", Toast.LENGTH_SHORT).show();
+                            mNoMessageTxt.setVisibility(View.GONE);
+                            mChatRecyclerView.setVisibility(View.VISIBLE);
+                            ChatMessageModel messageModel = pDataSnapshot.getValue(ChatMessageModel.class);
+                            Toast.makeText(ChatPingActivity.this, "message", Toast.LENGTH_SHORT).show();
+                            mChatAdapter.addChatMessage(messageModel);
+                        }
+                    }
+
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(@NonNull DataSnapshot pDataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError pDatabaseError) {
+
+                    }
+                });
     }
 
     private void getMessageFromServer() {
@@ -134,14 +208,16 @@ public class ChatPingActivity extends AppCompatActivity {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot pDataSnapshot) {
                             if (pDataSnapshot.exists()) {
-                                Map<String,Object> update = new HashMap<>();
-                                update.put("lastMessage",messageModel);
+                                Map<String, Object> update = new HashMap<>();
+                                update.put("lastMessage", messageModel);
                                 mFirebaseDatabase.getReference("chats")
                                         .child(userId)
                                         .updateChildren(update);
                                 addMessageToChatNode(userId, chatid, messageModel);
                             } else {
-                                ChatNodeModel nodeModel = new ChatNodeModel(userId, messageModel);
+                                String name = mCurrentUser.getDisplayName();
+                                String imageurl = String.valueOf(mCurrentUser.getPhotoUrl());
+                                ChatNodeModel nodeModel = new ChatNodeModel(userId, name, imageurl, messageModel);
                                 mFirebaseDatabase.getReference("chats")
                                         .child(userId)
                                         .setValue(nodeModel)
