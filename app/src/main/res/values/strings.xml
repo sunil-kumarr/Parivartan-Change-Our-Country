@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Comy</string>
+    <string name="app_name">parivartan</string>
     <string name="complain_desc">You can streamline this flow for users who open the sign-in link on the same device they request the link, by storing their email address locally - for instance using SharedPreferences - when you send the sign-in email. Then, use this address to complete the flow. Do not pass the user’s email in the redirect URL parameters and re-use it as this may enable session injections. After sign-in completion, any previous unverified mechanism of sign-in will be removed from the user and any existing sessions will be invalidated. For example, if someone previously created an unverified account with the same email and password, the user’s password will be removed to prevent the impersonator who claimed ownership and created that unverified account from signing in again with the unverified email and password.</string>
     <string name="chat_sample">hello from commy support how may i help sasasasasaassaasas you</string>
 </resources>
