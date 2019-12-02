@@ -91,6 +91,7 @@ public class FragmentComplainOpen extends Fragment {
 
                                         @Override
                                         public void onChildChanged(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
+
                                             homeAdapter.notifyDataSetChanged();
                                         }
 

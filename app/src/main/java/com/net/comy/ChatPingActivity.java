@@ -71,7 +71,9 @@ public class ChatPingActivity extends AppCompatActivity {
         if (mFirebaseAuth.getCurrentUser() != null) {
             mCurrentUser = mFirebaseAuth.getCurrentUser();
             mChatAdapter = new ChatAdapter(this, mFirebaseAuth.getCurrentUser().getUid());
-            mChatRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
+            LinearLayoutManager layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
+            layoutManager.setStackFromEnd(true);
+            mChatRecyclerView.setLayoutManager(layoutManager);
             mChatRecyclerView.setAdapter(mChatAdapter);
             SharedPreferences preferences = getSharedPreferences("adminCredentials", MODE_PRIVATE);
             isAdmin = preferences.getBoolean("isAdmin", false);
