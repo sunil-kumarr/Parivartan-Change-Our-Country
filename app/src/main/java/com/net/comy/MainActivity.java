@@ -163,7 +163,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
 
     private void setAdminControls() {
-
         SharedPreferences preferences = getSharedPreferences("adminCredentials",MODE_PRIVATE);
         isAdmin = preferences.getBoolean("isAdmin",false);
         if(isAdmin){
@@ -339,6 +338,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (R.id.action_logout == item.getItemId()) {
             mFirebaseAuth.signOut();
+            SharedPreferences preferences = getSharedPreferences("adminCredentials",MODE_PRIVATE);
+            preferences.edit().remove("isAdmin").apply();
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
             finish();
         }

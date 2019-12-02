@@ -90,11 +90,11 @@ public class PhoneNumberStep extends Step<String> {
 
     @Override
     protected IsDataValid isStepDataValid(String stepData) {
-        boolean isvalid =false;
-        if(stepData.equals("verified")){
-            isvalid=true;
-        }
-        return new IsDataValid(isvalid);
+//        boolean isvalid =false;
+//        if(stepData.equals("verified")){
+//            isvalid=true;
+//        }
+        return new IsDataValid(true);
     }
 
     @Override
@@ -115,18 +115,17 @@ public class PhoneNumberStep extends Step<String> {
 
     @Override
     protected void onStepClosed(boolean animated) {
-
+        mResend.setVisibility(View.GONE);
+        mVerify.setVisibility(View.GONE);
+        verification_code.setVisibility(View.GONE);
+        mSendCode.setVisibility(View.VISIBLE);
+        mobileNumber.setText("");
     }
 
     @Override
     protected void onStepMarkedAsCompleted(boolean animated) {
         // updateTitle("Mobile Number:"+getStepData(),true);
         isStepDataValid("verified");
-        mResend.setVisibility(View.GONE);
-        mVerify.setVisibility(View.GONE);
-        verification_code.setVisibility(View.GONE);
-        mSendCode.setVisibility(View.VISIBLE);
-        mobileNumber.setText("");
         onStepClosed(true);
 
         // This will be called automatically whenever the step is marked as completed.

@@ -67,7 +67,7 @@ public class LoginActivity extends AppCompatActivity
         // Create the steps.
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        userNameStep = new PhoneNumberStep("Verify Mobile Number(Required)", "Enter 10 digit mobile number.");
+        userNameStep = new PhoneNumberStep("Verify Mobile Number(Optional)", "Enter 10 digit mobile number.");
         mGoogleSignInStep =
                 new GoogleSignInStep(
                         "Google SignIn (Required)",
@@ -168,9 +168,10 @@ public class LoginActivity extends AppCompatActivity
                                 String currentUserId = mFirebaseAuth.getCurrentUser().getUid();
                                 SharedPreferences.Editor editor = preferences.edit();
                                 if (userAdminView != null && userAdminView.getFirebaseID().equals(currentUserId)) {
-
+                                    Toast.makeText(LoginActivity.this, "Admin ", Toast.LENGTH_SHORT).show();
                                     editor.putBoolean("isAdmin",true);
                                 }else{
+                                    Toast.makeText(LoginActivity.this, "Not Admin", Toast.LENGTH_SHORT).show();
                                     editor.putBoolean("isAdmin",false);
                                 }
                                 editor.apply();
