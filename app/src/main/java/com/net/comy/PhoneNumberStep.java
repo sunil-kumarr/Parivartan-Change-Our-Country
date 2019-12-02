@@ -110,15 +110,7 @@ public class PhoneNumberStep extends Step<String> {
 
     @Override
     protected void onStepOpened(boolean animated) {
-//        mFirebaseUser = mFirebaseAuth.getCurrentUser();
-//        if(mFirebaseUser!=null) {
-//            String num = mFirebaseUser.getPhoneNumber();
-//            updateTitle("Mobile Number:"+num,true);
-//            getFormView().goToNextStep(true);
-//            isStepDataValid(num.substring(3,13));
-//            markAsCompleted(true);
-//            mSendCode.setText("Update");
-//        }
+
     }
 
     @Override

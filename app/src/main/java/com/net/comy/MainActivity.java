@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private LocationCallback locationCallback;
     private Geocoder mGeocoder;
     private EditText mSearchView;
+    private boolean isAdmin;
     private Location mCurrentLocation;
     private LocationRequest locationRequest;
     private ShimmerFrameLayout mShimmerFrameLayout;
@@ -154,39 +156,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
 
     private void setAdminControls() {
-        mFirebaseDatabase.getReference("admin")
-                .addChildEventListener(new ChildEventListener() {
-                    @Override
-                    public void onChildAdded(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
-                        UserAdminView userAdminView = pDataSnapshot.getValue(UserAdminView.class);
-                        if (userAdminView != null) {
-                            if (userAdminView.getFirebaseID().equals(mCurrentUser.getUid())) {
-                                mRegisterComplaint.setVisibility(View.GONE);
-                                mToolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_person_24px));
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onChildChanged(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
-
-                    }
-
-                    @Override
-                    public void onChildRemoved(@NonNull DataSnapshot pDataSnapshot) {
-
-                    }
-
-                    @Override
-                    public void onChildMoved(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
-
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError pDatabaseError) {
-
-                    }
-                });
+        SharedPreferences preferences = getSharedPreferences("adminCredentials",MODE_PRIVATE);
+        isAdmin = preferences.getBoolean("isAdmin",false);
+        if(isAdmin){
+            mRegisterComplaint.setVisibility(View.GONE);
+            mToolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_person_24px));
+        }
     }
 
     private void highLightCurrentTab(int position) {

@@ -25,6 +25,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ChatPingActivity extends AppCompatActivity {
 
@@ -79,6 +83,7 @@ public class ChatPingActivity extends AppCompatActivity {
         String userId = mCurrentUser.getUid();
         mFirebaseDatabase.getReference("chats")
                 .child(userId)
+                .child("messages")
                 .addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
@@ -119,25 +124,65 @@ public class ChatPingActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(message)) return;
         mCurrentUser = mFirebaseAuth.getCurrentUser();
         if (mCurrentUser != null) {
-            String userId = mCurrentUser.getUid();
-            long timestamp = System.currentTimeMillis();
-            String chatid = String.valueOf(timestamp);
-            ChatMessageModel messageModel = new ChatMessageModel(message, userId, timestamp);
-            mDatabaseReference = mFirebaseDatabase.getReference("chats").child(userId).child(chatid);
-            mDatabaseReference.setValue(messageModel)
-                    .addOnSuccessListener(this, new OnSuccessListener<Void>() {
+            final String userId = mCurrentUser.getUid();
+            final long timestamp = System.currentTimeMillis();
+            final String chatid = String.valueOf(timestamp);
+            final ChatMessageModel messageModel = new ChatMessageModel(message, userId, timestamp);
+            mFirebaseDatabase.getReference("chats")
+                    .child(userId)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
-                        public void onSuccess(Void pVoid) {
-                            mChatMessageBox.setText("");
+                        public void onDataChange(@NonNull DataSnapshot pDataSnapshot) {
+                            if (pDataSnapshot.exists()) {
+                                Map<String,Object> update = new HashMap<>();
+                                update.put("lastMessage",messageModel);
+                                mFirebaseDatabase.getReference("chats")
+                                        .child(userId)
+                                        .updateChildren(update);
+                                addMessageToChatNode(userId, chatid, messageModel);
+                            } else {
+                                ChatNodeModel nodeModel = new ChatNodeModel(userId, messageModel);
+                                mFirebaseDatabase.getReference("chats")
+                                        .child(userId)
+                                        .setValue(nodeModel)
+                                        .addOnSuccessListener(ChatPingActivity.this,
+                                                new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void pVoid) {
+                                                        addMessageToChatNode(userId, chatid, messageModel);
+
+                                                    }
+                                                });
+                            }
                         }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
+
                         @Override
-                        public void onFailure(@NonNull Exception pE) {
-                            Toast.makeText(ChatPingActivity.this, "Message Failed!", Toast.LENGTH_SHORT).show();
+                        public void onCancelled(@NonNull DatabaseError pDatabaseError) {
+
                         }
                     });
+
         }
+    }
+
+    private void addMessageToChatNode(String pUserId, String pChatid, ChatMessageModel pMessageModel) {
+        mFirebaseDatabase.getReference("chats")
+                .child(pUserId)
+                .child("messages")
+                .child(pChatid)
+                .setValue(pMessageModel)
+                .addOnSuccessListener(ChatPingActivity.this, new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void pVoid) {
+                        mChatMessageBox.setText("");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception pE) {
+                        Toast.makeText(ChatPingActivity.this, "Message Failed!", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override

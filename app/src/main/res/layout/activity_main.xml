@@ -58,5 +58,15 @@
         android:src="@drawable/ic_chat_icon"
         app:layout_constraintBottom_toTopOf="@id/register_com_button"
         app:layout_constraintEnd_toEndOf="parent" />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/chat_ping_messages_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:src="@drawable/ic_ping_messages"
+        app:rippleColor="@color/gray"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/register_com_button"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

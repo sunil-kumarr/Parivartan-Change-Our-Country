@@ -4,14 +4,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.data.model.User;
 import com.firebase.ui.auth.ui.phone.PhoneVerification;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -25,6 +29,9 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Collections;
@@ -42,6 +49,7 @@ public class LoginActivity extends AppCompatActivity
     private static final int RC_SIGN_IN = 134;
     private static final String KEY_VERIFY_IN_PROGRESS = "key_verify_in_progress";
     private FirebaseAuth mFirebaseAuth;
+    private FirebaseDatabase mFirebaseDatabase;
     private FirebaseUser mCurrentUser;
     private PhoneNumberStep userNameStep;
     private GoogleSignInStep mGoogleSignInStep;
@@ -58,6 +66,7 @@ public class LoginActivity extends AppCompatActivity
         setContentView(R.layout.activity_login);
         // Create the steps.
         mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
         userNameStep = new PhoneNumberStep("Verify Mobile Number(Required)", "Enter 10 digit mobile number.");
         mGoogleSignInStep =
                 new GoogleSignInStep(
@@ -118,6 +127,7 @@ public class LoginActivity extends AppCompatActivity
     @Override
     public void onCompletedForm() {
 
+        checkForAdminAccount();
         startActivity(new Intent(LoginActivity.this, MainActivity.class));
         finish();
     }
@@ -146,12 +156,68 @@ public class LoginActivity extends AppCompatActivity
                 RC_SIGN_IN);
     }
 
+   public void checkForAdminAccount(){
+       final SharedPreferences preferences = getSharedPreferences("adminCredentials",Context.MODE_PRIVATE);
+        mFirebaseDatabase.getReference("admin")
+                .addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
+                        if(pDataSnapshot.exists()){
+                            UserAdminView userAdminView = pDataSnapshot.getValue(UserAdminView.class);
+                            if(mFirebaseAuth.getCurrentUser()!=null) {
+                                String currentUserId = mFirebaseAuth.getCurrentUser().getUid();
+                                SharedPreferences.Editor editor = preferences.edit();
+                                if (userAdminView != null && userAdminView.getFirebaseID().equals(currentUserId)) {
 
+                                    editor.putBoolean("isAdmin",true);
+                                }else{
+                                    editor.putBoolean("isAdmin",false);
+                                }
+                                editor.apply();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
+                        if(pDataSnapshot.exists()){
+                            UserAdminView userAdminView = pDataSnapshot.getValue(UserAdminView.class);
+                            if(mFirebaseAuth.getCurrentUser()!=null) {
+                                String currentUserId = mFirebaseAuth.getCurrentUser().getUid();
+                                SharedPreferences.Editor editor = preferences.edit();
+                                if (userAdminView != null && userAdminView.getFirebaseID().equals(currentUserId)) {
+
+                                    editor.putBoolean("isAdmin",true);
+                                }else{
+                                    editor.putBoolean("isAdmin",false);
+                                }
+                                editor.apply();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onChildRemoved(@NonNull DataSnapshot pDataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(@NonNull DataSnapshot pDataSnapshot, @Nullable String pS) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError pDatabaseError) {
+
+                    }
+                });
+   }
     @Override
     public void onStart() {
         super.onStart();
         mCurrentUser = mFirebaseAuth.getCurrentUser();
         if (mCurrentUser != null ) {
+            checkForAdminAccount();
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
         }
