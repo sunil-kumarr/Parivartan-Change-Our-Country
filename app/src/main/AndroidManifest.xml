@@ -16,7 +16,7 @@
         <activity android:name=".ChatAdminListActivity"></activity>
         <activity
             android:name=".ChatPingActivity"
-            android:windowSoftInputMode="adjustPan"
+            android:windowSoftInputMode="adjustResize"
             android:parentActivityName=".MainActivity" />
         <activity android:name=".SearchActivity" />
         <activity
