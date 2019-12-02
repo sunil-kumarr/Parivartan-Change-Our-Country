@@ -14,4 +14,12 @@ public class UserAdminView {
     public boolean isAdmin() {
         return isAdmin;
     }
+
+    public void setAdmin(boolean pAdmin) {
+        isAdmin = pAdmin;
+    }
+
+    public void setFirebaseID(String pFirebaseID) {
+        firebaseID = pFirebaseID;
+    }
 }
